@@ -48,7 +48,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel, onSubmit }: Props) => 
         setDateOfBirth(data[0].dateOfBirth);
         setSsn(data[0].ssn);
         setOccupation(data[0].occupation);
-        setGender(data[3].gender);
+        setGender(data[0].gender);
         setData(data[0]);
         console.log("show patient useEffect.");
       } catch (error: any) {
