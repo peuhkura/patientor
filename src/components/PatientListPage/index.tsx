@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import { PatientFormValues, Patient } from "../../types";
 import AddPatientModal from "../AddPatientModal";
+import ShowPatientModal from "../ShowPatientModal";
 
 import HealthRatingBar from "../HealthRatingBar";
 
@@ -16,13 +17,19 @@ interface Props {
 
 const PatientListPage = ({ patients, setPatients } : Props ) => {
 
-  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [addPatientModalOpen, setModalOpen] = useState<boolean>(false);
+  const [showPatientModalOpen, setShowPatientModalOpen] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
   const openModal = (): void => setModalOpen(true);
-
   const closeModal = (): void => {
     setModalOpen(false);
+    setError(undefined);
+  };
+
+  const openShowPatientModal = (): void => setShowPatientModalOpen(true);
+  const closeShowPatientModal = (): void => {
+    setShowPatientModalOpen(false);
     setError(undefined);
   };
 
@@ -53,7 +60,13 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
         <Typography align="center" variant="h6">
           Patient list
         </Typography>
-      </Box>
+      </Box>         
+      <ShowPatientModal
+            modalOpen={showPatientModalOpen}
+            onSubmit={submitNewPatient}
+            error={error}
+            onClose={closeShowPatientModal}
+          />
       <Table style={{ marginBottom: "1em" }}>
         <TableHead>
           <TableRow>
@@ -64,9 +77,14 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
           </TableRow>
         </TableHead>
         <TableBody>
+
           {Object.values(patients).map((patient: Patient) => (
             <TableRow key={patient.id}>
-              <TableCell>{patient.name}</TableCell>
+              <TableCell>
+              <Button variant="contained" onClick={() => openShowPatientModal()}>
+                {patient.name}
+              </Button>
+              </TableCell>
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
               <TableCell>
@@ -77,7 +95,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
         </TableBody>
       </Table>
       <AddPatientModal
-        modalOpen={modalOpen}
+        modalOpen={addPatientModalOpen}
         onSubmit={submitNewPatient}
         error={error}
         onClose={closeModal}
