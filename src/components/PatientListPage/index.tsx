@@ -19,6 +19,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
 
   const [addPatientModalOpen, setModalOpen] = useState<boolean>(false);
   const [showPatientModalOpen, setShowPatientModalOpen] = useState<boolean>(false);
+  const [showPatientId, showPatientIdModal] = useState<string>('');
   const [error, setError] = useState<string>();
 
   const openModal = (): void => setModalOpen(true);
@@ -27,7 +28,11 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
     setError(undefined);
   };
 
-  const openShowPatientModal = (): void => setShowPatientModalOpen(true);
+  //const openShowPatientModal = (): void => setShowPatientModalOpen(true);
+  const openShowPatientModal = (patientId: number) => {
+    showPatientIdModal(patientId);
+    setShowPatientModalOpen(true);
+  };
   const closeShowPatientModal = (): void => {
     setShowPatientModalOpen(false);
     setError(undefined);
@@ -62,6 +67,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
         </Typography>
       </Box>         
       <ShowPatientModal
+            patientId={showPatientId}
             modalOpen={showPatientModalOpen}
             onSubmit={submitNewPatient}
             error={error}
@@ -81,7 +87,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
           {Object.values(patients).map((patient: Patient) => (
             <TableRow key={patient.id}>
               <TableCell>
-              <Button variant="contained" onClick={() => openShowPatientModal()}>
+              <Button variant="contained" onClick={() => openShowPatientModal(patient.id)}>
                 {patient.name}
               </Button>
               </TableCell>
