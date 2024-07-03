@@ -1,6 +1,6 @@
 import { Dialog, DialogTitle, DialogContent, Divider, Alert } from '@mui/material';
 
-import ShowPatientForm from "./ShowPatientForm";
+import ShowPatient from "./ShowPatient";
 import { PatientFormValues } from "../../types";
 
 interface Props {
@@ -17,7 +17,7 @@ const ShowPatientModal = ({ patientId, modalOpen, onClose, onSubmit, error }: Pr
     <Divider />
     <DialogContent>
       {error && <Alert severity="error"></Alert>}
-      <ShowPatientForm onSubmit={onSubmit} onCancel={onClose}/>
+      <ShowPatient patientId={patientId} onSubmit={onSubmit} onCancel={onClose}/>
     </DialogContent>
   </Dialog>
 );

@@ -29,7 +29,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
   };
 
   //const openShowPatientModal = (): void => setShowPatientModalOpen(true);
-  const openShowPatientModal = (patientId: number) => {
+  const openShowPatientModal = (patientId: string) => {
     showPatientIdModal(patientId);
     setShowPatientModalOpen(true);
   };
