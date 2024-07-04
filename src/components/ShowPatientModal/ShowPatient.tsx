@@ -1,6 +1,6 @@
-import { useState, useEffect, SyntheticEvent } from "react";
+import { useState, useEffect } from "react";
 import { Container, List, ListItem, ListItemText, Divider, Typography, Box, Grid, Button } from '@mui/material';
-import { PatientFormValues, Patient, Gender, Discharge, Entry, EntriesData, Diagnosis } from "../../types";
+import { PatientFormValues, Patient, Gender, Entry, Diagnosis } from "../../types";
 import { apiBaseUrl } from "../../constants";
 import React from 'react';
 
@@ -10,26 +10,17 @@ interface Props {
   onSubmit: (values: PatientFormValues) => void;
 }
 
-interface GenderOption{
-  value: Gender;
-  label: string;
-}
-
-const genderOptions: GenderOption[] = Object.values(Gender).map(v => ({
-  value: v, label: v.toString()
-}));
-
-const ShowPatient = ({ patientId="{patientId}", onCancel, onSubmit }: Props) => {
+const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
   const [name, setName] = useState('');
   const [occupation, setOccupation] = useState('');
   const [ssn, setSsn] = useState<string>(null);
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(Gender.Other);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [data, setData] = useState<Patient | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const initialDiagnoseCodes: string[] = [''];
-  const [diagnoseCodes, setDiagnoseCodes] = useState(initialDiagnoseCodes);
+  //const [loading, setLoading] = useState<boolean>(true);
+  //const [data, setData] = useState<Patient | null>(null);
+  //const [error, setError] = useState<string | null>(null);
+  const initialDiagnosis: Diagnosis[] = [];
+  const [diagnosis, setDiagnosis] = useState(initialDiagnosis);
   const initialEntries: Entry[] = [];
   const [entriesData, setEntriesData] = useState(initialEntries);
 
@@ -43,13 +34,11 @@ const ShowPatient = ({ patientId="{patientId}", onCancel, onSubmit }: Props) => 
   //let diagnoses: Diagnosis[];
 
 
-  let initialDiagnosis: Diagnosis[];
-  const [diagnosis, setDiagnosis] = useState(initialDiagnosis);
 
   useEffect(() => {
     const fetchDiagnoses  = async () => {
       try {
-        setLoading(true);
+        //setLoading(true);
         const response = await fetch(`${apiBaseUrl}/diagnoses`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -59,15 +48,16 @@ const ShowPatient = ({ patientId="{patientId}", onCancel, onSubmit }: Props) => 
         console.log(JSON.stringify(data));
         setDiagnosis(JSON.parse(JSON.stringify(data)));
       } catch (error: any) {
-        setError(error.message);
+        //setError(error.message);
+        console.log(error);
       } finally {
-        setLoading(false);
+        //setLoading(false);
       }
     };
 
     const fetchPatientData = async () => {
       try {
-        setLoading(true);
+        //setLoading(true);
         const response = await fetch(`${apiBaseUrl}/patients?patientId=${encodeURIComponent(patientId)}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -78,18 +68,15 @@ const ShowPatient = ({ patientId="{patientId}", onCancel, onSubmit }: Props) => 
         setSsn(data[0].ssn);
         setOccupation(data[0].occupation);
         setGender(data[0].gender);
-        setData(data[0]);
+        setEntriesData(JSON.parse(JSON.stringify(data[0].entries)));
 
         console.log("show patient useEffect.");
-
-        // Use the function to parse JSON data
-        setEntriesData(JSON.parse(JSON.stringify(data[0].entries)));
-        console.log("XXX patient entries:");
-        console.log(entriesData);
+        //console.log(entriesData);
       } catch (error: any) {
-        setError(error.message);
+        //setError(error.message);
+        console.log(error);
       } finally {
-        setLoading(false);
+        //setLoading(false);
       }
     };
     
