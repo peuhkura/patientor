@@ -7,6 +7,7 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ConstructionIcon from '@mui/icons-material/Construction';
+import AddEntryModal from "../AddEntryModal";
 
 interface Props {
   patientId: string;
@@ -24,6 +25,21 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
   const [diagnoses, setDiagnoses] = useState(initialDiagnoses);
   const initialEntries: Entry[] = [];
   const [entriesData, setEntriesData] = useState(initialEntries);
+
+  const [addEntryModalOpen, setAddEntryModalOpen] = useState<boolean>(false);
+  const openModal = (): void => setAddEntryModalOpen(true);
+  const closeModal = (): void => {
+    setAddEntryModalOpen(false);
+  };
+  const [error, setError] = useState<string>();
+  const submitNewEntry = async (values: PatientFormValues) => {
+    try {
+
+    } catch (e: unknown) {
+
+    }
+  };
+
 
   useEffect(() => {
     const fetchDiagnoses  = async () => {
@@ -202,6 +218,13 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         <EntryDetails key={entry.id} entry={entry} diagnosisCodes={entry.diagnosisCodes} diagnoses={diagnoses} />
       ))}
 
+      <AddEntryModal
+        modalOpen={addEntryModalOpen}
+        onSubmit={submitNewEntry}
+        error={error}
+        onClose={closeModal}
+      />
+
       <Grid>
         <Grid item>
           <Button
@@ -209,10 +232,19 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
             variant="contained"
             style={{ float: "left", marginTop: 20 }}
             type="button"
+            onClick={() => openModal()}
+          >
+            New Entry
+          </Button>   
+          <Button
+            color="primary"
+            variant="contained"
+            style={{ float: "right", marginTop: 20 }}
+            type="button"
             onClick={onCancel}
           >
             Close
-          </Button>
+          </Button>            
         </Grid>
       </Grid>
     </div>
