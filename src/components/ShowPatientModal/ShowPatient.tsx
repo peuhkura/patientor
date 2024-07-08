@@ -37,7 +37,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
 
   const submitNewEntry = async (values: EntryFormValues) => {
     try {
-      const patient = await patientService.createEntry(values);
+      const patient = await patientService.createEntry(patientId, values);
       //setPatients(patients.concat(patient));
       setAddEntryModalOpen(false);
     } catch (e: unknown) {
