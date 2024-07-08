@@ -20,29 +20,14 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
   const [ssn, setSsn] = useState<string>(null);
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState(Gender.Other);
-  //const [loading, setLoading] = useState<boolean>(true);
-  //const [data, setData] = useState<Patient | null>(null);
-  //const [error, setError] = useState<string | null>(null);
-  const initialDiagnosis: Diagnosis[] = [];
-  const [diagnosis, setDiagnosis] = useState(initialDiagnosis);
+  const initialDiagnoses: Diagnosis[] = [];
+  const [diagnoses, setDiagnoses] = useState(initialDiagnoses);
   const initialEntries: Entry[] = [];
   const [entriesData, setEntriesData] = useState(initialEntries);
-
-  // For test
-  /*const diagnosisCodes: string[] = ['Z57.1', 'Z74.3', 'M51.2'];
-  const diagnoses2: Diagnosis[] = [
-    { code: "M24.2", name: "Disorder of ligament", latin: "Morbositas ligamenti" },
-    { code: "M51.2", name: "Other specified intervertebral disc displacement", latin: "Alia dislocatio disci intervertebralis specificata" },
-    { code: "S03.5", name: "Sprain and strain of joints and ligaments of other and unspecified parts of head", latin: "Distorsio et/sive distensio articulationum et/sive ligamentorum partium aliarum sive non specificatarum capitis" },
-  ];*/
-  //let diagnoses: Diagnosis[];
-
-
 
   useEffect(() => {
     const fetchDiagnoses  = async () => {
       try {
-        //setLoading(true);
         const response = await fetch(`${apiBaseUrl}/diagnoses`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -50,12 +35,9 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         const data: Diagnosis[] = await response.json();
 
         console.log(JSON.stringify(data));
-        setDiagnosis(JSON.parse(JSON.stringify(data)));
+        setDiagnoses(JSON.parse(JSON.stringify(data)));
       } catch (error: any) {
-        //setError(error.message);
         console.log(error);
-      } finally {
-        //setLoading(false);
       }
     };
 
@@ -88,37 +70,8 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
     fetchPatientData();
   }, [patientId]);
 
-  interface DiagnosisListProps {
-    codes: string[];
-    diagnoses: Diagnosis[];
-  }
-
-  const DiagnosisList: React.FC<DiagnosisListProps> = ({ codes, diagnoses }) => {
-    return (
-      <Container>
-        <br/>
-        <Typography variant="body2"><strong>Diagnosis List:</strong></Typography>
-        <List>
-          {codes.map(code => {
-            const matchingDiagnosis = diagnoses.find(diagnosis => diagnosis.code === code);
-            return (
-                <ListItem alignItems="flex-start" sx={{ padding: '4px 0' }}>
-                  {matchingDiagnosis ? (
-                    <ListItemText variant="body2" sx={{ display: 'block' }} 
-                      primary={`Code: ${matchingDiagnosis.code}, ${matchingDiagnosis.name}`}
-                    />
-                  ) : (
-                    <ListItemText primary={`No matching diagnosis found for code: ${code}`} />
-                  )}
-                </ListItem>
-            );
-          })}
-        </List>
-      </Container>
-    );
-  };
-
-  const EntryDetails: React.FC<{ entry: any; diagnosisCodes: string[]; diagnosis: Diagnosis[] }> = ({ entry, diagnosisCodes, diagnosis }) => {
+  const EntryDetails: React.FC<{ entry: any; diagnosisCodes: string[]; diagnoses: Diagnosis[] }> 
+    = ({ entry, diagnosisCodes, diagnoses }) => {
     
     const renderIcon = (entry: any) => {
       switch (entry.type) {
@@ -141,9 +94,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
       }
     };
 
-
     const renderEntrySpecificDetails = (entry: any) => {
-
       switch (entry.type) {
         case 'HealthCheck':
           return (
@@ -168,8 +119,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
       }
     };
 
-
-    const renderEntryDiagnosis = (diagnosisCodes: string[]) => {
+    const renderEntryDiagnosis = (diagnosisCodes: string[], diagnoses: Diagnosis[]) => {
       // Check if diagnosisCodes is empty
       if (!diagnosisCodes || diagnosisCodes.length === 0) {
         return (
@@ -179,22 +129,33 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           </div>
         );
       }
-    
+        
+      // Check if diagnoses is defined and not null
+      if (!diagnoses || !Array.isArray(diagnoses)) {
+        return (
+          <div>
+            <Typography variant="body2"><strong>Diagnoses</strong></Typography>
+            <Typography variant="body2">No diagnoses data available</Typography>
+          </div>
+        );
+      }
+      
       // Generate list of diagnosis codes and names based on codes
       const diagnosisList = diagnosisCodes.map(code => {
-        return (
-          <Typography variant="body2">{code}</Typography>
+        const diagnosis = diagnoses.find(d => d.code === code);
+        return diagnosis ? (
+          <Typography key={code} variant="body2">{code}: {diagnosis.name}</Typography>
+        ) : (
+          <Typography key={code} variant="body2">???</Typography>
         );
       });
 
       return (
         <div>
-          <Typography variant="body2"><strong>Diagnoses</strong></Typography>
+          <br/><Typography variant="body2"><strong>Diagnoses</strong></Typography>
           {diagnosisList}
-          <pre>{JSON.stringify(diagnosisCodes, null, 2)}</pre>
         </div>
       );
-
     };
 
     return (
@@ -205,15 +166,19 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           <Typography variant="body2">Specialist: {entry.specialist}</Typography>
           <Typography variant="body2">Description: {entry.description}</Typography>
           {renderEntrySpecificDetails(entry)}
-          {renderEntryDiagnosis(diagnosisCodes)}
+          {renderEntryDiagnosis(diagnosisCodes, diagnoses)}
+
         </Box>
       </div>
     );
   };
 
-  /* Snippets
-            <Typography variant="body2"><strong>Type: {entry.type}</strong></Typography>
+    /* For debug, snippets:          
+      <Typography variant="body2"><strong>Type: {entry.type}</strong></Typography>
 
+      <pre>DEBUG: {JSON.stringify(diagnoses, null, 2)}</pre>
+      <pre>DEBUG: {JSON.stringify(diagnosisCodes, null, 2)}</pre>
+      <pre>DEBUG: {JSON.stringify(diagnoses, null, 2)}</pre>
 
       {diagnosisCodes && (
         <Typography variant="body2">Diagnose codes: {diagnosisCodes}</Typography>
@@ -234,7 +199,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
 
       <Typography variant="body1"><strong>Entries:</strong></Typography>
       {entriesData.map(entry => (
-        <EntryDetails key={entry.id} entry={entry} diagnosisCodes={entry.diagnosisCodes} diagnoses={diagnosis} />
+        <EntryDetails key={entry.id} entry={entry} diagnosisCodes={entry.diagnosisCodes} diagnoses={diagnoses} />
       ))}
 
       <Grid>
@@ -250,10 +215,6 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           </Button>
         </Grid>
       </Grid>
-      <pre>MORO:{JSON.stringify(entriesData, null, 2)}</pre>
-
-      <pre>{JSON.stringify(diagnosis, null, 2)}</pre>
-
     </div>
   );
 };
