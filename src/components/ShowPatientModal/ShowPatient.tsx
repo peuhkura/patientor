@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Container, List, ListItem, ListItemText, Divider, Typography, Box, Grid, Button } from '@mui/material';
-import { PatientFormValues, Patient, Gender, Entry, Diagnosis } from "../../types";
+import { EntryFormValues, Patient, Gender, Entry, Diagnosis } from "../../types";
 import { apiBaseUrl } from "../../constants";
 import React from 'react';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
@@ -8,11 +8,13 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import AddEntryModal from "../AddEntryModal";
+import axios from 'axios';
+import patientService from "../../services/patients";
 
 interface Props {
   patientId: string;
   onCancel: () => void;
-  onSubmit: (values: PatientFormValues) => void;
+  onSubmit: (values: EntryFormValues) => void;
 }
 
 const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
@@ -32,14 +34,42 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
     setAddEntryModalOpen(false);
   };
   const [error, setError] = useState<string>();
-  const submitNewEntry = async (values: PatientFormValues) => {
+
+  const submitNewEntry = async (values: EntryFormValues) => {
     try {
-
+      const patient = await patientService.createEntry(values);
+      //setPatients(patients.concat(patient));
+      setAddEntryModalOpen(false);
     } catch (e: unknown) {
-
+      if (axios.isAxiosError(e)) {
+        console.log("ERROR");
+        /*
+        if (e?.response?.data && typeof e?.response?.data === "string") {
+          const message = e.response.data.replace('Something went wrong. Error: ', '');
+          console.error(message);
+          setError(message);
+        } else {
+          setError("Unrecognized axios error");
+        }*/
+      } else {
+        console.error("Unknown error", e);
+        setError("Unknown error");
+      }
     }
   };
 
+/*
+  const submitNewEntry = async (values: EntryFormValues) => {
+    try {
+
+      console.log("SUBMIT");
+      setAddEntryModalOpen(false);
+    } catch (e: unknown) {
+
+      console.log("ERROR");
+    }
+  };
+*/
 
   useEffect(() => {
     const fetchDiagnoses  = async () => {

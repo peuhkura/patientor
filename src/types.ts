@@ -28,6 +28,9 @@ export interface BaseEntry {
   specialist: string;
   diagnosisCodes?: string[];
 }
+
+export type EntryFormValues = Omit<BaseEntry, "id">;
+
 export enum HealthCheckRating {
   "Healthy" = 0,
   "LowRisk" = 1,
