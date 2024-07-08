@@ -3,6 +3,10 @@ import { Container, List, ListItem, ListItemText, Divider, Typography, Box, Grid
 import { PatientFormValues, Patient, Gender, Entry, Diagnosis } from "../../types";
 import { apiBaseUrl } from "../../constants";
 import React from 'react';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import ConstructionIcon from '@mui/icons-material/Construction';
 
 interface Props {
   patientId: string;
@@ -114,37 +118,103 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
     );
   };
 
-//   const Entry = ({ entry, diagnosisCodes, diagnoses }) => (
-  interface EntryProps {
-    entry: Entry;
-    diagnosisCodes: string[];
-    diagnoses: Diagnosis[];
-  }
+  const EntryDetails: React.FC<{ entry: any; diagnosisCodes: string[]; diagnosis: Diagnosis[] }> = ({ entry, diagnosisCodes, diagnosis }) => {
+    
+    const renderIcon = (entry: any) => {
+      switch (entry.type) {
+        case 'HealthCheck':
+          return (
+            <LocalHospitalIcon/>
+          );
+        case 'OccupationalHealthcare':
+          return (
+            <ConstructionIcon/>
+          );
+        case 'Hospital':
+          return (
+            entry.discharge !== undefined && (
+              <LocalHospitalIcon/>
+            )
+          );
+        default:
+          return null;
+      }
+    };
 
-  const Entry: React.FC<EntryProps> =({ entry, diagnosisCodes, diagnoses }) => (
 
-    <div className="entry">
+    const renderEntrySpecificDetails = (entry: any) => {
 
-    <Box p={1}>
-      <Typography variant="body2"><strong>Date: {entry.date}</strong></Typography>
-      <Typography variant="body2">Specialist: {entry.specialist}</Typography>
-      <Typography variant="body2">Description: {entry.description}</Typography>
-      {entry.healthCheckRating !== undefined && (
-        <Typography variant="body2">Health Check Rating: {entry.healthCheckRating}</Typography>
-      )}
-      {entry.employerName && (
-        <Typography variant="body2">Employer Name: {entry.employerName}</Typography>
-      )}
-      {entry.discharge && (
-        <Typography variant="body2">Discharge: {entry.discharge.date}, {entry.discharge.criteria}</Typography>
-      )}
-      {diagnosisCodes && (<DiagnosisList codes={diagnosisCodes} diagnoses={diagnoses} />)}
-    </Box>
+      switch (entry.type) {
+        case 'HealthCheck':
+          return (
+            entry.healthCheckRating !== undefined && (
+              <Typography variant="body2">Health Check Rating: {entry.healthCheckRating}</Typography>
+            )
+          );
+        case 'OccupationalHealthcare':
+          return (
+            entry.employerName !== undefined && (
+              <Typography variant="body2">Employer Name: {entry.employerName}</Typography>
+            )
+          );
+        case 'Hospital':
+          return (
+            entry.discharge !== undefined && (
+              <Typography variant="body2">Discharge: {entry.discharge.date}, {entry.discharge.criteria}</Typography>
+            )
+          );
+        default:
+          return null;
+      }
+    };
 
-    </div>
-  );
+
+    const renderEntryDiagnosis = (diagnosisCodes: string[]) => {
+      // Check if diagnosisCodes is empty
+      if (!diagnosisCodes || diagnosisCodes.length === 0) {
+        return (
+          <div>
+            <Typography variant="body2"><strong>Diagnoses</strong></Typography>
+            <Typography variant="body2">No diagnoses available</Typography>
+          </div>
+        );
+      }
+    
+      // Generate list of diagnosis codes and names based on codes
+      const diagnosisList = diagnosisCodes.map(code => {
+        return (
+          <Typography variant="body2">{code}</Typography>
+        );
+      });
+
+      return (
+        <div>
+          <Typography variant="body2"><strong>Diagnoses</strong></Typography>
+          {diagnosisList}
+          <pre>{JSON.stringify(diagnosisCodes, null, 2)}</pre>
+        </div>
+      );
+
+    };
+
+    return (
+      <div className="entry">
+        <Box component="section" sx={{ p: 2, border: '1px solid grey' }}>
+          {renderIcon(entry)}
+          <Typography variant="body2"><strong>Date: {entry.date}</strong></Typography>
+          <Typography variant="body2">Specialist: {entry.specialist}</Typography>
+          <Typography variant="body2">Description: {entry.description}</Typography>
+          {renderEntrySpecificDetails(entry)}
+          {renderEntryDiagnosis(diagnosisCodes)}
+        </Box>
+      </div>
+    );
+  };
 
   /* Snippets
+            <Typography variant="body2"><strong>Type: {entry.type}</strong></Typography>
+
+
       {diagnosisCodes && (
         <Typography variant="body2">Diagnose codes: {diagnosisCodes}</Typography>
       )}
@@ -164,7 +234,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
 
       <Typography variant="body1"><strong>Entries:</strong></Typography>
       {entriesData.map(entry => (
-        <Entry key={entry.id} entry={entry} diagnosisCodes={entry.diagnosisCodes} diagnoses={diagnosis} />
+        <EntryDetails key={entry.id} entry={entry} diagnosisCodes={entry.diagnosisCodes} diagnoses={diagnosis} />
       ))}
 
       <Grid>
@@ -180,8 +250,9 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           </Button>
         </Grid>
       </Grid>
+      <pre>MORO:{JSON.stringify(entriesData, null, 2)}</pre>
 
-
+      <pre>{JSON.stringify(diagnosis, null, 2)}</pre>
 
     </div>
   );
