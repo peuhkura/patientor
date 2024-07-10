@@ -2,7 +2,7 @@ import { useState, SyntheticEvent } from "react";
 
 import {  TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent } from '@mui/material';
 
-import { EntryFormValues } from "../../types";
+import {  HealthCheckEntry, OccupationalHealthcareEntry, HospitalEntry, EntryFormValues, Discharge, HealthCheckRating } from "../../types";
 
 interface Props {
   onCancel: () => void;
@@ -15,8 +15,46 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
   const [specialist, setSpecialist] = useState('');
   const [diagnosisCodes, setDiagnosisCodes] = useState('');
   const [type, setType] = useState('');
+  const [entryType, setEntryType] = useState<'HealthCheck' | 'OccupationalHealthcare' | 'Hospital'>('HealthCheck');
+  const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
+  const [employerName, setEmployerName] = useState('');
+  const [discharge, setDischarge] = useState<Discharge>({ date: '', criteria: '' });
 
-  const addEntry = (event: SyntheticEvent) => {
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const baseEntry = {
+      id: '1', // This should be generated uniquely
+      description,
+      date,
+      specialist,
+      diagnosisCodes
+    };
+    
+    if (entryType === 'HealthCheck') {
+      const newEntry: HealthCheckEntry = {
+        ...baseEntry,
+        type: 'HealthCheck',
+        healthCheckRating
+      };
+      onSubmit(newEntry);
+    } else if (entryType === 'OccupationalHealthcare') {
+      const newEntry: OccupationalHealthcareEntry = {
+        ...baseEntry,
+        type: 'OccupationalHealthcare',
+        employerName
+      };
+      onSubmit(newEntry);
+    } else if (entryType === 'Hospital') {
+      const newEntry: HospitalEntry = {
+        ...baseEntry,
+        type: 'Hospital',
+        discharge
+      };
+      onSubmit(newEntry);
+    }
+  };
+
+  /*const addEntry = (event: SyntheticEvent) => {
     event.preventDefault();
     onSubmit({
       description,
@@ -25,11 +63,14 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
       diagnosisCodes,
       type
     });
-  };
+  };*/
 
   return (
     <div>
-      <form onSubmit={addEntry}>
+      <form onSubmit={handleSubmit}>
+
+
+
         <TextField
           label="Description"
           fullWidth 
@@ -62,6 +103,53 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           onChange={({ target }) => setType(target.value)}
         />
        
+       <label>
+          Entry Type:
+          <select value={entryType} onChange={(e) => setEntryType(e.target.value as 'HealthCheck' | 'OccupationalHealthcare' | 'Hospital')}>
+            <option value="HealthCheck">Health Check</option>
+            <option value="OccupationalHealthcare">Occupational Healthcare</option>
+            <option value="Hospital">Hospital</option>
+          </select>
+       </label>
+
+        {entryType === 'HealthCheck' && (
+        <div>
+          <label>
+            Health Check Rating:
+            <select value={healthCheckRating} onChange={(e) => setHealthCheckRating(Number(e.target.value) as HealthCheckRating)}>
+              <option value={HealthCheckRating.Healthy}>Healthy</option>
+              <option value={HealthCheckRating.LowRisk}>Low Risk</option>
+              <option value={HealthCheckRating.HighRisk}>High Risk</option>
+              <option value={HealthCheckRating.CriticalRisk}>Critical Risk</option>
+            </select>
+          </label>
+        </div>
+        )}
+        {entryType === 'OccupationalHealthcare' && (
+          <div>
+            <label>
+              Employer Name:
+              <input type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required />
+            </label>
+          </div>
+        )}
+
+        {entryType === 'Hospital' && (
+          <div>
+            <label>
+              Diagnosis Codes:
+              <input type="text" value={diagnosisCodes} onChange={(e) => setDiagnosisCodes({ ...diagnosisCodes, diagnosisCodes: e.target.value })} />
+            </label>
+            <label>
+              Discharge Date:
+              <input type="date" value={discharge.date} onChange={(e) => setDischarge({ ...discharge, date: e.target.value })} />
+            </label>
+            <label>
+              Discharge Criteria:
+              <input type="text" value={discharge.criteria} onChange={(e) => setDischarge({ ...discharge, criteria: e.target.value })} />
+            </label>
+          </div>
+        )}
 
         <Grid>
           <Grid item>

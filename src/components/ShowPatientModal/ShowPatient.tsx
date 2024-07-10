@@ -27,19 +27,27 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
   const [diagnoses, setDiagnoses] = useState(initialDiagnoses);
   const initialEntries: Entry[] = [];
   const [entriesData, setEntriesData] = useState(initialEntries);
+  const [fetchTrigger, setFetchTrigger] = useState(0); // State to trigger re-fetch
 
   const [addEntryModalOpen, setAddEntryModalOpen] = useState<boolean>(false);
-  const openModal = (): void => setAddEntryModalOpen(true);
+  const openModal = (): void => {
+    setAddEntryModalOpen(true);
+  };
   const closeModal = (): void => {
     setAddEntryModalOpen(false);
   };
   const [error, setError] = useState<string>();
+    
+  const refetchPatientData = () => {
+    setFetchTrigger((prev) => prev + 1); // Increment fetchTrigger to re-trigger useEffect
+  };
 
   const submitNewEntry = async (values: EntryFormValues) => {
     try {
       const patient = await patientService.createEntry(patientId, values);
       //setPatients(patients.concat(patient));
       setAddEntryModalOpen(false);
+      refetchPatientData();
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         console.log("ERROR");
@@ -57,19 +65,6 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
       }
     }
   };
-
-/*
-  const submitNewEntry = async (values: EntryFormValues) => {
-    try {
-
-      console.log("SUBMIT");
-      setAddEntryModalOpen(false);
-    } catch (e: unknown) {
-
-      console.log("ERROR");
-    }
-  };
-*/
 
   useEffect(() => {
     const fetchDiagnoses  = async () => {
@@ -111,10 +106,11 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         //setLoading(false);
       }
     };
+
     
     fetchDiagnoses();
     fetchPatientData();
-  }, [patientId]);
+  }, [patientId, fetchTrigger]);
 
   const EntryDetails: React.FC<{ entry: any; diagnosisCodes: string[]; diagnoses: Diagnosis[] }> 
     = ({ entry, diagnosisCodes, diagnoses }) => {
