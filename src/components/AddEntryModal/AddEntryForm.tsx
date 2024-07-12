@@ -14,8 +14,8 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
   const [diagnosisCodes, setDiagnosisCodes] = useState('');
-  const [type, setType] = useState('');
-  const [entryType, setEntryType] = useState<'HealthCheck' | 'OccupationalHealthcare' | 'Hospital'>('HealthCheck');
+  //const [type, setType] = useState('');
+  const [type, setType] = useState<'HealthCheck' | 'OccupationalHealthcare' | 'Hospital'>('HealthCheck');
   const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
   const [employerName, setEmployerName] = useState('');
   const [discharge, setDischarge] = useState<Discharge>({ date: '', criteria: '' });
@@ -26,28 +26,28 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
       id: '1', // This should be generated uniquely
       description,
       date,
-      specialist,
-      diagnosisCodes
+      specialist
     };
     
-    if (entryType === 'HealthCheck') {
+    if (type === 'HealthCheck') {
       const newEntry: HealthCheckEntry = {
         ...baseEntry,
         type: 'HealthCheck',
         healthCheckRating
       };
       onSubmit(newEntry);
-    } else if (entryType === 'OccupationalHealthcare') {
+    } else if (type === 'OccupationalHealthcare') {
       const newEntry: OccupationalHealthcareEntry = {
         ...baseEntry,
         type: 'OccupationalHealthcare',
         employerName
       };
       onSubmit(newEntry);
-    } else if (entryType === 'Hospital') {
+    } else if (type === 'Hospital') {
       const newEntry: HospitalEntry = {
         ...baseEntry,
         type: 'Hospital',
+        diagnosisCodes,
         discharge
       };
       onSubmit(newEntry);
@@ -90,29 +90,17 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           value={specialist}
           onChange={({ target }) => setSpecialist(target.value)}
         />
-        <TextField
-          label="Diagnosis Codes"
-          fullWidth 
-          value={diagnosisCodes}
-          onChange={({ target }) => setDiagnosisCodes(target.value)}
-        />
-        <TextField
-          label="Type"
-          fullWidth 
-          value={type}
-          onChange={({ target }) => setType(target.value)}
-        />
-       
+
        <label>
           Entry Type:
-          <select value={entryType} onChange={(e) => setEntryType(e.target.value as 'HealthCheck' | 'OccupationalHealthcare' | 'Hospital')}>
+          <select value={type} onChange={(e) => setType(e.target.value as 'HealthCheck' | 'OccupationalHealthcare' | 'Hospital')}>
             <option value="HealthCheck">Health Check</option>
             <option value="OccupationalHealthcare">Occupational Healthcare</option>
             <option value="Hospital">Hospital</option>
           </select>
        </label>
 
-        {entryType === 'HealthCheck' && (
+        {type === 'HealthCheck' && (
         <div>
           <label>
             Health Check Rating:
@@ -125,7 +113,7 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           </label>
         </div>
         )}
-        {entryType === 'OccupationalHealthcare' && (
+        {type === 'OccupationalHealthcare' && (
           <div>
             <label>
               Employer Name:
@@ -134,11 +122,11 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           </div>
         )}
 
-        {entryType === 'Hospital' && (
+        {type === 'Hospital' && (
           <div>
             <label>
               Diagnosis Codes:
-              <input type="text" value={diagnosisCodes} onChange={(e) => setDiagnosisCodes({ ...diagnosisCodes, diagnosisCodes: e.target.value })} />
+              <input type="text" value={diagnosisCodes} onChange={(e) => setDiagnosisCodes(e.target.value)} />
             </label>
             <label>
               Discharge Date:

@@ -22,11 +22,10 @@ export interface Patient {
 
 export interface BaseEntry {
   id: string;
-  type: string;
   description: string;
   date: string;
   specialist: string;
-  diagnosisCodes?: string[];
+  type: string;
 }
 
 export type EntryFormValues = Omit<BaseEntry, "id">;
@@ -37,7 +36,7 @@ export enum HealthCheckRating {
   "HighRisk" = 2,
   "CriticalRisk" = 3
 }
-interface HealthCheckEntry extends BaseEntry {
+export interface HealthCheckEntry extends BaseEntry {
   type: "HealthCheck";
   healthCheckRating: HealthCheckRating;
 }
