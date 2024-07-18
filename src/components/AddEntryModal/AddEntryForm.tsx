@@ -1,7 +1,5 @@
-import { useState, SyntheticEvent } from "react";
-
-import {  TextField, InputLabel, MenuItem, Select, Grid, Button, SelectChangeEvent } from '@mui/material';
-
+import { useState } from "react";
+import {  TextField, InputLabel, MenuItem, Select, Grid, Button } from '@mui/material';
 import {  HealthCheckEntry, OccupationalHealthcareEntry, HospitalEntry, EntryFormValues, Discharge, HealthCheckRating } from "../../types";
 
 interface Props {
@@ -14,7 +12,6 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
   const [date, setDate] = useState('');
   const [specialist, setSpecialist] = useState('');
   const [diagnosisCodes, setDiagnosisCodes] = useState('');
-  //const [type, setType] = useState('');
   const [type, setType] = useState<'HealthCheck' | 'OccupationalHealthcare' | 'Hospital'>('HealthCheck');
   const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
   const [employerName, setEmployerName] = useState('');
@@ -54,23 +51,9 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
     }
   };
 
-  /*const addEntry = (event: SyntheticEvent) => {
-    event.preventDefault();
-    onSubmit({
-      description,
-      date,
-      specialist,
-      diagnosisCodes,
-      type
-    });
-  };*/
-
   return (
     <div>
       <form onSubmit={handleSubmit}>
-
-
-
         <TextField
           label="Description"
           fullWidth 
@@ -90,61 +73,74 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           value={specialist}
           onChange={({ target }) => setSpecialist(target.value)}
         />
-
-       <label>
-          Entry Type:
-          <select value={type} onChange={(e) => setType(e.target.value as 'HealthCheck' | 'OccupationalHealthcare' | 'Hospital')}>
-            <option value="HealthCheck">Health Check</option>
-            <option value="OccupationalHealthcare">Occupational Healthcare</option>
-            <option value="Hospital">Hospital</option>
-          </select>
-       </label>
+        <InputLabel style={{ marginTop: 5 }}>Entry Type</InputLabel>
+        <Select
+          label="Entry Type"
+          fullWidth
+          value={type}
+          onChange={(e) => setType(e.target.value as 'HealthCheck' | 'OccupationalHealthcare' | 'Hospital')}
+        >
+          <MenuItem key={type} value={"HealthCheck"} >HealthCheck</MenuItem> 
+          <MenuItem key={type} value={"OccupationalHealthcare"} >Occupational Healthcare</MenuItem> 
+          <MenuItem key={type} value={"Hospital"} >Hospital</MenuItem> 
+        </Select>
 
         {type === 'HealthCheck' && (
         <div>
-          <label>
-            Health Check Rating:
-            <select value={healthCheckRating} onChange={(e) => setHealthCheckRating(Number(e.target.value) as HealthCheckRating)}>
-              <option value={HealthCheckRating.Healthy}>Healthy</option>
-              <option value={HealthCheckRating.LowRisk}>Low Risk</option>
-              <option value={HealthCheckRating.HighRisk}>High Risk</option>
-              <option value={HealthCheckRating.CriticalRisk}>Critical Risk</option>
-            </select>
-          </label>
+            <InputLabel style={{ marginTop: 5 }}>Health Check Rating</InputLabel>
+            <Select value={healthCheckRating} onChange={(e) => setHealthCheckRating(Number(e.target.value) as HealthCheckRating)}>
+              <MenuItem value={HealthCheckRating.Healthy}>Healthy</MenuItem>
+              <MenuItem value={HealthCheckRating.LowRisk}>Low Risk</MenuItem>
+              <MenuItem value={HealthCheckRating.HighRisk}>High Risk</MenuItem>
+              <MenuItem value={HealthCheckRating.CriticalRisk}>Critical Risk</MenuItem>
+            </Select>
         </div>
         )}
         {type === 'OccupationalHealthcare' && (
           <div>
-            <label>
-              Employer Name:
-              <input type="text" value={employerName} onChange={(e) => setEmployerName(e.target.value)} required />
-            </label>
+            <TextField
+              label="Employer Name:"
+              fullWidth 
+              value={employerName}
+              onChange={(e) => setEmployerName(e.target.value)}
+            />
           </div>
         )}
-
         {type === 'Hospital' && (
           <div>
-            <label>
-              Diagnosis Codes:
-              <input type="text" value={diagnosisCodes} onChange={(e) => setDiagnosisCodes(e.target.value)} />
-            </label>
-            <label>
-              Discharge Date:
-              <input type="date" value={discharge.date} onChange={(e) => setDischarge({ ...discharge, date: e.target.value })} />
-            </label>
-            <label>
-              Discharge Criteria:
-              <input type="text" value={discharge.criteria} onChange={(e) => setDischarge({ ...discharge, criteria: e.target.value })} />
-            </label>
+            <TextField
+              label="Diagnosis Codes:"
+              fullWidth 
+              value={diagnosisCodes}
+              onChange={(e) => setDiagnosisCodes(e.target.value)}
+            />
+            <TextField
+              style={{ marginTop: 10 }}
+              label="Discharge Date:"
+              fullWidth
+              type="date"
+              value={discharge.date}
+              onChange={(e) => setDischarge({ ...discharge, date: e.target.value })}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+            <TextField
+              label="Discharge Criteria:"
+              fullWidth 
+              value={discharge.criteria}
+              onChange={(e) => setDischarge({ ...discharge, criteria: e.target.value })}
+            />
+
           </div>
         )}
-
+        
         <Grid>
           <Grid item>
             <Button
               color="secondary"
               variant="contained"
-              style={{ float: "left" }}
+              style={{ float: "left", marginTop: 20 }}
               type="button"
               onClick={onCancel}
             >
@@ -153,9 +149,7 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           </Grid>
           <Grid item>
             <Button
-              style={{
-                float: "right",
-              }}
+              style={{ float: "right", marginTop: 20 }}
               type="submit"
               variant="contained"
             >
