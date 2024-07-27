@@ -58,7 +58,8 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           setError(e.response.data.error);
           //setError('An BXXX unknown error occurred.');
         } else {
-          setError('An unknown error occurred. (E BXX)');
+          setError(error);
+          //setError('An unknown error occurred. (E BXX)');
         }
       }
     };

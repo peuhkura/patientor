@@ -62,7 +62,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         }*/
       } else {
         console.error("Unknown error", e);
-        setError("Unknown error");
+        setError(e.message);
       }
       setError(e.response.json());
     }
