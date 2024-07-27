@@ -4,7 +4,7 @@ import {  HealthCheckEntry, OccupationalHealthcareEntry, HospitalEntry, EntryFor
 
 interface Props {
   onCancel: () => void;
-  onSubmit: (values: EntryFormValues) => void;
+  onSubmit: (values: EntryFormValues) => Promise<void>;
 }
 
 const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
@@ -16,8 +16,9 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
   const [healthCheckRating, setHealthCheckRating] = useState<HealthCheckRating>(HealthCheckRating.Healthy);
   const [employerName, setEmployerName] = useState('');
   const [discharge, setDischarge] = useState<Discharge>({ date: '', criteria: '' });
+  const [error, setError] = useState('');
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     const baseEntry = {
       id: '1', // This should be generated uniquely
@@ -26,34 +27,47 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
       specialist
     };
     
-    if (type === 'HealthCheck') {
-      const newEntry: HealthCheckEntry = {
-        ...baseEntry,
-        type: 'HealthCheck',
-        healthCheckRating
-      };
-      onSubmit(newEntry);
-    } else if (type === 'OccupationalHealthcare') {
-      const newEntry: OccupationalHealthcareEntry = {
-        ...baseEntry,
-        type: 'OccupationalHealthcare',
-        employerName
-      };
-      onSubmit(newEntry);
-    } else if (type === 'Hospital') {
-      const newEntry: HospitalEntry = {
-        ...baseEntry,
-        type: 'Hospital',
-        diagnosisCodes,
-        discharge
-      };
-      onSubmit(newEntry);
-    }
-  };
+    try {
+      if (type === 'HealthCheck') {
+        const newEntry: HealthCheckEntry = {
+          ...baseEntry,
+          type: 'HealthCheck',
+          healthCheckRating
+        };
+        await onSubmit(newEntry);
+      } else if (type === 'OccupationalHealthcare') {
+        const newEntry: OccupationalHealthcareEntry = {
+          ...baseEntry,
+          type: 'OccupationalHealthcare',
+          employerName
+        };
+        await onSubmit(newEntry);
+      } else if (type === 'Hospital') {
+        const newEntry: HospitalEntry = {
+          ...baseEntry,
+          type: 'Hospital',
+          diagnosisCodes,
+          discharge
+        };
+        await onSubmit(newEntry);
+      }
+
+    } catch (e: any) {
+        console.log("error...");
+        if (e.response && e.response.data && e.response.data.error) {
+          setError(e.response.data.error);
+          //setError('An BXXX unknown error occurred.');
+        } else {
+          setError('An unknown error occurred. (E BXX)');
+        }
+      }
+    };
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
+       {error && <p style={{ color: 'red' }}>{error}</p>}
+
         <TextField
           label="Description"
           fullWidth 

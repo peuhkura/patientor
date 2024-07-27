@@ -58,7 +58,7 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
       }
     }
   };
-
+  
   return (
     <div className="App">
       <Box>

@@ -44,10 +44,11 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
 
   const submitNewEntry = async (values: EntryFormValues) => {
     try {
+      setError('');
       const patient = await patientService.createEntry(patientId, values);
       //setPatients(patients.concat(patient));
       setAddEntryModalOpen(false);
-      refetchPatientData();
+
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         console.log("ERROR");
@@ -63,8 +64,10 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         console.error("Unknown error", e);
         setError("Unknown error");
       }
+      setError(e.response.json());
     }
-  };
+    refetchPatientData();
+};
 
   useEffect(() => {
     const fetchDiagnoses  = async () => {
@@ -99,9 +102,18 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
 
         console.log("show patient useEffect.");
         //console.log(entriesData);
+
+        if (addEntryModalOpen) {
+          // show error related to entry
+        } else {
+          setError('');
+        }
       } catch (error: any) {
         //setError(error.message);
+        console.log("ERROR:");
         console.log(error);
+        setError(error);
+        //setError("AAA");
       } finally {
         //setLoading(false);
       }
