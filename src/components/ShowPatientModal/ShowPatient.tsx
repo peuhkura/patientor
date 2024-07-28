@@ -101,7 +101,6 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         setEntriesData(JSON.parse(JSON.stringify(data[0].entries)));
 
         console.log("show patient useEffect.");
-        //console.log(entriesData);
 
         if (addEntryModalOpen) {
           // show error related to entry
@@ -109,13 +108,8 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           setError('');
         }
       } catch (error: any) {
-        //setError(error.message);
-        console.log("ERROR:");
         console.log(error);
         setError(error);
-        //setError("AAA");
-      } finally {
-        //setLoading(false);
       }
     };
 
@@ -131,7 +125,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
       switch (entry.type) {
         case 'HealthCheck':
           return (
-            <LocalHospitalIcon/>
+            <MonitorHeartIcon/>
           );
         case 'OccupationalHealthcare':
           return (
@@ -220,27 +214,13 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           <Typography variant="body2">Specialist: {entry.specialist}</Typography>
           <Typography variant="body2">Description: {entry.description}</Typography>
           {renderEntrySpecificDetails(entry)}
-          {renderEntryDiagnosis(diagnosisCodes, diagnoses)}
+          {(entry.diagnosisCodes !== undefined && entry.diagnosisCodes !== '') ? renderEntryDiagnosis(diagnosisCodes, diagnoses) : ''}
 
         </Box>
       </div>
     );
   };
 
-    /* For debug, snippets:          
-      <Typography variant="body2"><strong>Type: {entry.type}</strong></Typography>
-
-      <pre>DEBUG: {JSON.stringify(diagnoses, null, 2)}</pre>
-      <pre>DEBUG: {JSON.stringify(diagnosisCodes, null, 2)}</pre>
-      <pre>DEBUG: {JSON.stringify(diagnoses, null, 2)}</pre>
-
-      {diagnosisCodes && (
-        <Typography variant="body2">Diagnose codes: {diagnosisCodes}</Typography>
-      )}
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-      <pre>MORO:{JSON.stringify(entriesData, null, 2)}</pre>
-      <pre>{JSON.stringify(diagnosisData, null, 2)}</pre>
-    */
 
   return (
     <div>

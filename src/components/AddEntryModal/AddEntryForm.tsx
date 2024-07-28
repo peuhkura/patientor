@@ -56,10 +56,8 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
         console.log("error...");
         if (e.response && e.response.data && e.response.data.error) {
           setError(e.response.data.error);
-          //setError('An BXXX unknown error occurred.');
         } else {
           setError(error);
-          //setError('An unknown error occurred. (E BXX)');
         }
       }
     };
@@ -76,11 +74,15 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
           onChange={({ target }) => setDescription(target.value)}
         />
         <TextField
+          style={{ marginTop: 10 }}
           label="Date"
-          placeholder="YYYY-MM-DD"
           fullWidth
+          type="date"
           value={date}
-          onChange={({ target }) => setDate(target.value)}
+          onChange={(e) => setDate(e.target.value)}
+          InputLabelProps={{
+            shrink: true,
+        }}
         />
         <TextField
           label="Specialist"

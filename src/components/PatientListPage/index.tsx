@@ -79,7 +79,6 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
             <TableCell>Name</TableCell>
             <TableCell>Gender</TableCell>
             <TableCell>Occupation</TableCell>
-            <TableCell>Health Rating</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -87,15 +86,22 @@ const PatientListPage = ({ patients, setPatients } : Props ) => {
           {Object.values(patients).map((patient: Patient) => (
             <TableRow key={patient.id}>
               <TableCell>
-              <Button variant="contained" onClick={() => openShowPatientModal(patient.id)}>
+              <Button 
+                variant="contained"
+                sx={{
+                  backgroundColor: 'secondary.main',
+                  color: 'white',
+                  '&:hover': {
+                    backgroundColor: 'secondary.dark',
+                  },
+                  margin: '0rem',
+                }}
+                onClick={() => openShowPatientModal(patient.id)}>
                 {patient.name}
               </Button>
               </TableCell>
               <TableCell>{patient.gender}</TableCell>
               <TableCell>{patient.occupation}</TableCell>
-              <TableCell>
-                <HealthRatingBar showText={false} rating={1} />
-              </TableCell>
             </TableRow>
           ))}
         </TableBody>
