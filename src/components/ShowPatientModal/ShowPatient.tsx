@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Container, List, ListItem, ListItemText, Divider, Typography, Box, Grid, Button } from '@mui/material';
+import { Divider, Typography, Box, Grid, Button } from '@mui/material';
 import { EntryFormValues, Patient, Gender, Entry, Diagnosis } from "../../types";
 import { apiBaseUrl } from "../../constants";
 import React from 'react';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import ConstructionIcon from '@mui/icons-material/Construction';
 import AddEntryModal from "../AddEntryModal";
 import axios from 'axios';
@@ -28,7 +27,6 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
   const initialEntries: Entry[] = [];
   const [entriesData, setEntriesData] = useState(initialEntries);
   const [fetchTrigger, setFetchTrigger] = useState(0); // State to trigger re-fetch
-
   const [addEntryModalOpen, setAddEntryModalOpen] = useState<boolean>(false);
   const openModal = (): void => {
     setAddEntryModalOpen(true);
@@ -47,19 +45,20 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
       setError('');
       const patient = await patientService.createEntry(patientId, values);
       //setPatients(patients.concat(patient));
+      if (patient !== undefined){
+        console.error("Patient undefined error");
+      }
       setAddEntryModalOpen(false);
-
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         console.log("ERROR");
-        /*
         if (e?.response?.data && typeof e?.response?.data === "string") {
           const message = e.response.data.replace('Something went wrong. Error: ', '');
           console.error(message);
           setError(message);
         } else {
           setError("Unrecognized axios error");
-        }*/
+        }
       } else {
         console.error("Unknown error", e);
         setError(e.message);
@@ -77,11 +76,25 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
           throw new Error('Network response was not ok');
         }
         const data: Diagnosis[] = await response.json();
-
         console.log(JSON.stringify(data));
         setDiagnoses(JSON.parse(JSON.stringify(data)));
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.log(error);
+        
+        if (axios.isAxiosError(error)) {
+          // Handle AxiosError
+          if (error.response && error.response.data && error.response.data.error) {
+            setError(error.response.data.error);
+          } else {
+            setError('An unexpected error occurred');
+          }
+        } else if (error instanceof Error) {
+          // Handle general Error
+          setError(error.message);
+        } else {
+          // Handle unknown error
+          setError('An unknown error occurred');
+        }
       }
     };
 
@@ -107,21 +120,35 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
         } else {
           setError('');
         }
-      } catch (error: any) {
-        console.log(error);
-        setError(error);
+      } catch (error: unknown) {
+        //console.log(error);
+        //setError(error);
+
+        if (axios.isAxiosError(error)) {
+          // Handle AxiosError
+          if (error.response && error.response.data && error.response.data.error) {
+            setError(error.response.data.error);
+          } else {
+            setError('An unexpected error occurred');
+          }
+        } else if (error instanceof Error) {
+          // Handle general Error
+          setError(error.message);
+        } else {
+          // Handle unknown error
+          setError('An unknown error occurred');
+        }
       }
     };
 
-    
     fetchDiagnoses();
     fetchPatientData();
-  }, [patientId, fetchTrigger]);
+  }, [patientId, fetchTrigger, addEntryModalOpen]);
 
-  const EntryDetails: React.FC<{ entry: any; diagnosisCodes: string[]; diagnoses: Diagnosis[] }> 
+  const EntryDetails: React.FC<{ entry: Entry; diagnosisCodes: string[]; diagnoses: Diagnosis[] }> 
     = ({ entry, diagnosisCodes, diagnoses }) => {
     
-    const renderIcon = (entry: any) => {
+    const renderIcon = (entry: Entry) => {
       switch (entry.type) {
         case 'HealthCheck':
           return (
@@ -142,7 +169,7 @@ const ShowPatient = ({ patientId="{patientId}", onCancel }: Props) => {
       }
     };
 
-    const renderEntrySpecificDetails = (entry: any) => {
+    const renderEntrySpecificDetails = (entry: Entry) => {
       switch (entry.type) {
         case 'HealthCheck':
           return (

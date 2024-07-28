@@ -63,11 +63,16 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
           onChange={({ target }) => setSsn(target.value)}
         />
         <TextField
+          style={{ marginTop: 10 }}
           label="Date of birth"
           placeholder="YYYY-MM-DD"
           fullWidth
+          type="date"
           value={dateOfBirth}
           onChange={({ target }) => setDateOfBirth(target.value)}
+          InputLabelProps={{
+            shrink: true,
+        }}
         />
         <TextField
           label="Occupation"

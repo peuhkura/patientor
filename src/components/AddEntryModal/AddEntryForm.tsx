@@ -1,6 +1,7 @@
 import { useState } from "react";
-import {  TextField, InputLabel, MenuItem, Select, Grid, Button } from '@mui/material';
-import {  HealthCheckEntry, OccupationalHealthcareEntry, HospitalEntry, EntryFormValues, Discharge, HealthCheckRating } from "../../types";
+import { TextField, InputLabel, MenuItem, Select, Grid, Button } from '@mui/material';
+import { HealthCheckEntry, OccupationalHealthcareEntry, HospitalEntry, EntryFormValues, Discharge, HealthCheckRating } from "../../types";
+import axios from 'axios';
 
 interface Props {
   onCancel: () => void;
@@ -52,15 +53,20 @@ const AddEntryForm = ({ onCancel, onSubmit }: Props) => {
         await onSubmit(newEntry);
       }
 
-    } catch (e: any) {
-        console.log("error...");
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
         if (e.response && e.response.data && e.response.data.error) {
           setError(e.response.data.error);
         } else {
-          setError(error);
+          setError('An unexpected error occurred');
         }
+      } else {
+        setError('An unexpected error occurred');
       }
-    };
+      console.log("error...", e);
+      throw e; // Re-throw the error after handling it
+    }
+  };
 
   return (
     <div>
